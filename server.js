@@ -4,10 +4,11 @@ import fetch from "node-fetch";
 import { createClient } from "@supabase/supabase-js";
 import puppeteer from "puppeteer";
 import sharp from "sharp";
+import "dotenv/config";
 
 const supabase = createClient(
-    'https://tahpwjltvnjzodufxarq.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRhaHB3amx0dm5qem9kdWZ4YXJxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczMzIxOTQ2NywiZXhwIjoyMDQ4Nzk1NDY3fQ.0sdZHKcrCGucgca6DpuDn5QFGDSKtNnQFHejny_stWc'
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SECRET_KEY
 );
 
 const app = express();
