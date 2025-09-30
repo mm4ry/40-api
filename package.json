@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "postinstall": "npx puppeteer install --path ./.cache/puppeteer",
     "start": "node server.js"
   },
   "dependencies": {
