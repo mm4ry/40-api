@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "postinstall": "npx puppeteer browsers install chrome"
+    "postinstall": "node node_modules/puppeteer/install.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",

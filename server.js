@@ -47,9 +47,13 @@ app.get("/api/bandcamp-oembed", async (req, res) => {
     let browser;
     try {
         browser = await puppeteer.launch({
-            headless: true,
-            executablePath: await puppeteer.executablePath(),
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
+            headless: "new",
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu'
+            ]
         });
 
         const page = await browser.newPage();
