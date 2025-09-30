@@ -47,7 +47,8 @@ app.get("/api/bandcamp-oembed", async (req, res) => {
     let browser;
     try {
         browser = await puppeteer.launch({
-            headless: "new",
+            headless: true,
+            executablePath: process.env.CHROME_PATH || '/opt/bin/chromium',
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
