@@ -68,13 +68,13 @@ app.get("/api/bandcamp-oembed", async (req, res) => {
 
         await page.goto(url, { waitUntil: 'networkidle2' });
 
-        // Extract data like Substack does
         const metadata = await page.evaluate(() => {
 
             // 2. Extract Bandcamp-specific data from page variables
             let bandcampData = {};
             let embedId = '';
-            let itemType = 'track'; // default
+            let itemType = 'track';
+            let imageUrl = '';
 
             try {
                 // Bandcamp stores data in window.TralbumData
@@ -109,11 +109,27 @@ app.get("/api/bandcamp-oembed", async (req, res) => {
                 }
             }
 
+            // Try to extract the image URL from the page
+            const div = document.querySelector('#tralbumArt');
+            if (div) {
+                const img = div.querySelector('img');
+                if (img && img.src) {
+                    imageUrl = img.src;
+                }
+            }
+
             return {
                 bandcamp_id: embedId,
                 item_type: itemType,
+                imageUrl: imageUrl
             };
         });
+
+        if (metadata.imageUrl) {
+            // Upload to Supabase
+            const filename = `${Date.now()}.jpg`;
+            metadata.thumbnail = await uploadBandcampThumbnail(metadata.imageUrl, filename);
+        }
 
         res.json(metadata);
 
@@ -129,6 +145,31 @@ app.get("/api/bandcamp-oembed", async (req, res) => {
 app.listen(PORT, () =>
     console.log(`✅ Server running on http://localhost:${PORT}`)
 );
+
+
+async function uploadBandcampThumbnail(imageUrl, filename) {
+    const response = await fetch(imageUrl);
+    if (!response.ok) throw new Error("Failed to fetch image");
+
+    const buffer = await response.arrayBuffer();
+
+    const compressed = await sharp(Buffer.from(buffer))
+        .resize(200)
+        .jpeg({ quality: 80 })
+        .toBuffer();
+
+    const { data, error } = await supabase.storage
+        .from("bandcamp-covers")
+        .upload(filename, compressed, {
+            cacheControl: "3600",
+            upsert: true,
+            contentType: response.headers.get("content-type") || "image/jpeg",
+        });
+
+    if (error) throw error;
+
+    return filename;
+}
 
 
 async function uploadInstagramThumbnail(imageUrl, filename) {
